@@ -1,29 +1,26 @@
 package main
 
-import (
-	"log"
-	"net/http"
-)
+import "net/http"
 
-func home(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Привет из Snippetbox"))
-}
-
-func showSnippet(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Отображение заметки..."))
-}
-
+// Обработчик для создания новой заметки.
 func createSnippet(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Форма для создания новой заметки..."))
-}
+	// Используем r.Method для проверки, использует ли запрос метод POST или нет. Обратите внимание,
+	// что http.MethodPost является строкой и содержит текст "POST".
+	if r.Method != http.MethodPost {
+		// Используем метод Header().Set() для добавления заголовка 'Allow: POST' в
+		// карту HTTP-заголовков. Первый параметр - название заголовка, а
+		// второй параметр - значение заголовка.
+		w.Header().Set("Allow", http.MethodPost)
 
-func main() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/snippet", showSnippet)
-	mux.HandleFunc("/snippet/create", createSnippet)
+		// Вызываем метод w.WriteHeader() для возвращения статус-кода 405
+		// и вызывается метод w.Write() для возвращения тела-ответа с текстом "Метод запрещен".
+		w.WriteHeader(405)
+		w.Write([]byte("GET-Метод запрещен!"))
 
-	log.Println("Запуск сервера на http://127.0.0.1:4000")
-	err := http.ListenAndServe(":4000", mux)
-	log.Fatal(err)
+		// Затем мы завершаем работу функции вызвав "return", чтобы
+		// последующий код не выполнялся.
+		return
+	}
+
+	w.Write([]byte("Создание новой заметки..."))
 }
